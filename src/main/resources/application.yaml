@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Travelagency
+  datasource:
+    url: jdbc:postgresql://localhost:5432/travelagency
+    username: postgres
+    password: aArkus14
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+server:
+  port: 8080
