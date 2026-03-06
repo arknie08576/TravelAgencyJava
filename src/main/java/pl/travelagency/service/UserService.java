@@ -5,6 +5,7 @@ import pl.travelagency.auth.PasswordService;
 import pl.travelagency.db.UserEntity;
 import pl.travelagency.db.UserRole;
 import pl.travelagency.dto.AddUserRequest;
+import pl.travelagency.dto.PutUserByIdRequest;
 import pl.travelagency.dto.UserDto;
 import pl.travelagency.repo.UserRepository;
 
@@ -60,6 +61,41 @@ public class UserService {
         return userRepository.findByLogin(username)
                 .filter(user -> passwordService.matches(password, user.getPassword()))
                 .map(this::mapToDto);
+    }
+
+    public Optional<UserDto> update(Integer userId, PutUserByIdRequest request) {
+        return userRepository.findById(userId)
+                .map(entity -> {
+                    entity.setName(request.getName());
+                    entity.setSurname(request.getSurname());
+                    entity.setLogin(request.getLogin());
+                    entity.setEmail(request.getEmail());
+
+                    if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                        entity.setPassword(passwordService.hashPassword(request.getPassword()));
+                    }
+
+                    if ("admin".equalsIgnoreCase(request.getRole())) {
+                        entity.setRole(UserRole.admin);
+                    } else if (request.getRole() != null) {
+                        entity.setRole(UserRole.user);
+                    }
+
+                    return mapToDto(userRepository.save(entity));
+                });
+    }
+
+    public Optional<UserDto> deleteById(Integer userId, UserEntity currentUser) {
+        if (currentUser == null || currentUser.getRole() == UserRole.user) {
+            return Optional.empty();
+        }
+
+        return userRepository.findById(userId)
+                .map(entity -> {
+                    UserDto dto = mapToDto(entity);
+                    userRepository.delete(entity);
+                    return dto;
+                });
     }
 
     public List<UserDto> getAll() {

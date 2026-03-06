@@ -10,6 +10,7 @@ import pl.travelagency.api.ErrorType;
 import pl.travelagency.api.ResponseBase;
 import pl.travelagency.dto.AddUserRequest;
 import pl.travelagency.dto.AuthenticateUserRequest;
+import pl.travelagency.dto.PutUserByIdRequest;
 import pl.travelagency.dto.UserDto;
 import pl.travelagency.service.UserService;
 
@@ -100,6 +101,45 @@ public class UsersController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorModel(ErrorType.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @DeleteMapping("/{userId:\\d+}")
+    public ResponseEntity<ResponseBase<UserDto>> deleteById(
+            @PathVariable Integer userId,
+            Authentication authentication
+    ) {
+        try {
+            var currentUser = authentication == null ? null
+                    : userService.getEntityByLogin(authentication.getName()).orElse(null);
+
+            return userService.deleteById(userId, currentUser)
+                    .map(user -> ResponseEntity.ok(ResponseBase.ok(user)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(ResponseBase.fail(ErrorType.UNAUTHORIZED)));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @PutMapping("/{userId:\\d+}")
+    public ResponseEntity<ResponseBase<UserDto>> putById(
+            @PathVariable Integer userId,
+            @RequestBody PutUserByIdRequest request
+    ) {
+        try {
+            request.setUserId(userId);
+
+            return userService.update(userId, request)
+                    .map(user -> ResponseEntity.ok(ResponseBase.ok(user)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(ResponseBase.fail(ErrorType.NOT_FOUND)));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
         }
     }
 }

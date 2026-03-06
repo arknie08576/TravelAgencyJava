@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/Trips/**").permitAll()
                         .requestMatchers("/Users").permitAll()
                         .requestMatchers("/Users/authenticate").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/Opinions/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> {});

@@ -6,41 +6,44 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.travelagency.api.ErrorType;
 import pl.travelagency.api.ResponseBase;
-import pl.travelagency.dto.AddTripRequest;
-import pl.travelagency.dto.PutTripByIdRequest;
-import pl.travelagency.dto.TripDto;
-import pl.travelagency.service.TripService;
+import pl.travelagency.dto.AddOpinionRequest;
+import pl.travelagency.dto.OpinionDto;
+import pl.travelagency.dto.PutOpinionByIdRequest;
+import pl.travelagency.service.OpinionService;
 import pl.travelagency.service.UserService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/Trips")
-public class TripsController {
+@RequestMapping("/Opinions")
+public class OpinionsController {
 
-    private final TripService tripService;
+    private final OpinionService opinionService;
     private final UserService userService;
 
-    public TripsController(TripService tripService, UserService userService) {
-        this.tripService = tripService;
+    public OpinionsController(
+            OpinionService opinionService,
+            UserService userService
+    ) {
+        this.opinionService = opinionService;
         this.userService = userService;
     }
 
     @GetMapping
-    public ResponseEntity<ResponseBase<List<TripDto>>> getAll() {
+    public ResponseEntity<ResponseBase<List<OpinionDto>>> getAllOpinions() {
         try {
-            return ResponseEntity.ok(ResponseBase.ok(tripService.getAll()));
+            return ResponseEntity.ok(ResponseBase.ok(opinionService.getAll()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
         }
     }
 
-    @GetMapping("/{tripId}")
-    public ResponseEntity<ResponseBase<TripDto>> getById(@PathVariable Integer tripId) {
+    @GetMapping("/{opinionId}")
+    public ResponseEntity<ResponseBase<OpinionDto>> getById(@PathVariable Integer opinionId) {
         try {
-            return tripService.getById(tripId)
-                    .map(trip -> ResponseEntity.ok(ResponseBase.ok(trip)))
+            return opinionService.getById(opinionId)
+                    .map(opinion -> ResponseEntity.ok(ResponseBase.ok(opinion)))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                             .body(ResponseBase.fail(ErrorType.NOT_FOUND)));
         } catch (Exception e) {
@@ -50,59 +53,62 @@ public class TripsController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseBase<TripDto>> addTrip(
-            @RequestBody AddTripRequest request,
+    public ResponseEntity<ResponseBase<OpinionDto>> addOpinion(
+            @RequestBody AddOpinionRequest request,
             Authentication authentication
     ) {
         try {
-            var currentUser = authentication == null ? null
-                    : userService.getEntityByLogin(authentication.getName()).orElse(null);
+            var currentUser = authentication == null ? null :
+                    userService.getEntityByLogin(authentication.getName()).orElse(null);
 
-            return tripService.add(request, currentUser)
-                    .map(trip -> ResponseEntity.ok(ResponseBase.ok(trip)))
+            return opinionService.add(request, currentUser)
+                    .map(opinion -> ResponseEntity.ok(ResponseBase.ok(opinion)))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                             .body(ResponseBase.fail(ErrorType.UNAUTHORIZED)));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
         }
     }
 
-    @DeleteMapping("/{tripId}")
-    public ResponseEntity<ResponseBase<TripDto>> deleteById(
-            @PathVariable Integer tripId,
+    @DeleteMapping("/{opinionId}")
+    public ResponseEntity<ResponseBase<OpinionDto>> deleteById(
+            @PathVariable Integer opinionId,
             Authentication authentication
     ) {
         try {
-            var currentUser = authentication == null ? null
-                    : userService.getEntityByLogin(authentication.getName()).orElse(null);
+            var currentUser = authentication == null ? null :
+                    userService.getEntityByLogin(authentication.getName()).orElse(null);
 
-            return tripService.deleteById(tripId, currentUser)
-                    .map(trip -> ResponseEntity.ok(ResponseBase.ok(trip)))
+            return opinionService.deleteById(opinionId, currentUser)
+                    .map(opinion -> ResponseEntity.ok(ResponseBase.ok(opinion)))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                             .body(ResponseBase.fail(ErrorType.UNAUTHORIZED)));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
         }
     }
 
-    @PutMapping("/{tripId}")
-    public ResponseEntity<ResponseBase<TripDto>> putById(
-            @PathVariable Integer tripId,
-            @RequestBody PutTripByIdRequest request,
+    @PutMapping("/{opinionId}")
+    public ResponseEntity<ResponseBase<OpinionDto>> putById(
+            @PathVariable Integer opinionId,
+            @RequestBody PutOpinionByIdRequest request,
             Authentication authentication
     ) {
         try {
-            request.setTripId(tripId);
+            request.setOpinionId(opinionId);
 
-            var currentUser = authentication == null ? null
-                    : userService.getEntityByLogin(authentication.getName()).orElse(null);
+            var currentUser = authentication == null ? null :
+                    userService.getEntityByLogin(authentication.getName()).orElse(null);
 
-            return tripService.update(request, currentUser)
-                    .map(trip -> ResponseEntity.ok(ResponseBase.ok(trip)))
+            return opinionService.update(request, currentUser)
+                    .map(opinion -> ResponseEntity.ok(ResponseBase.ok(opinion)))
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                             .body(ResponseBase.fail(ErrorType.UNAUTHORIZED)));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseBase.fail(ErrorType.INTERNAL_SERVER_ERROR));
