@@ -1,14 +1,20 @@
+server:
+  port: 7131
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: travelagency
+
 spring:
-  application:
-    name: Travelagency
   datasource:
     url: jdbc:postgresql://localhost:5432/travelagency
     username: postgres
     password: aArkus14
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     open-in-view: false
-
-server:
-  port: 8080

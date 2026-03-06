@@ -37,13 +37,14 @@ public class DbSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        System.out.println("DB SEEDER STARTED");
         // jak w C#: jeśli coś jest -> nie seedujemy
         boolean hasAny = userRepo.count() > 0
                 || tripRepo.count() > 0
                 || reservationRepo.count() > 0
                 || opinionRepo.count() > 0;
         if (hasAny) return;
-
+        System.out.println("DATABASE IS EMPTY, SEEDING...");
         seed(60, 90, 220, 0.55);
     }
 
@@ -157,9 +158,11 @@ public class DbSeeder implements ApplicationRunner {
         reservationRepo.saveAll(reservations);
 
         // --- Opinions (tylko dla zakończonych) ---
-        List<ReservationEntity> ended = reservations.stream()
-                .filter(r -> !r.getTrip().getStopDate().isAfter(today))
-                .toList();
+        List<ReservationEntity> ended = new ArrayList<>(
+                reservations.stream()
+                        .filter(r -> !r.getTrip().getStopDate().isAfter(today))
+                        .toList()
+        );
 
         int opinionsCount = (int)Math.round(ended.size() * opinionShare);
         Collections.shuffle(ended, rnd);
