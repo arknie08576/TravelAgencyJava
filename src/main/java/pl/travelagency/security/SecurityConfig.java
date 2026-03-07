@@ -2,6 +2,7 @@ package pl.travelagency.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/Trips/**").permitAll()
                         .requestMatchers("/Users").permitAll()
                         .requestMatchers("/Users/authenticate").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/Opinions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/Opinions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/Reservations/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> {});
